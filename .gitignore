@@ -1,0 +1,7 @@
+Schematica.iml
+.project
+.classpath
+.idea/*
+.settings/*
+target/*
+

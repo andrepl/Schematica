@@ -1,0 +1,32 @@
+name: Schematica
+version: 1
+author: metalhedd
+main: com.norcode.bukkit.schematica.Schematica
+commands:
+  schem:
+    permission: schematica.copy
+    usage: /<command>
+  schemload:
+    permission: schematica.load
+    usage: /<command> <filename>
+  schemsave:
+    permission: schematica.save
+    usage: /<command> <filename>
+  schemcopy:
+    permission: schematica.copy
+    usage: /<command>
+  schempaste:
+    permission: schematica.paste
+    usage: /<command>
+
+permissions:
+  schematica.select:
+    default: op
+  schematica.save:
+    default: op
+  schematica.load:
+    default: op
+  schematica.copy:
+    default: op
+  schematica.paste:
+    default: op
