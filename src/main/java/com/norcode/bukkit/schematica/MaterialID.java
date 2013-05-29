@@ -331,6 +331,7 @@ public class MaterialID {
     public static final int RECORD_12 = 2267;
 
     public static final HashMap<Integer, Class<? extends TileEntity>> tileEntityTypes = new HashMap<Integer, Class<? extends TileEntity>>();
+    public static final HashMap<Class<? extends TileEntity>, String> tileEntityIds = new HashMap<Class<? extends TileEntity>, String>();
     static {
         tileEntityTypes.put(MaterialID.FURNACE, TileEntityFurnace.class);
         tileEntityTypes.put(MaterialID.BURNING_FURNACE, TileEntityFurnace.class);
@@ -356,8 +357,27 @@ public class MaterialID {
         tileEntityTypes.put(MaterialID.HOPPER, TileEntityHopper.class);
         tileEntityTypes.put(MaterialID.REDSTONE_COMPARATOR_ON, TileEntityComparator.class);
         tileEntityTypes.put(MaterialID.REDSTONE_COMPARATOR_OFF, TileEntityComparator.class);
+        tileEntityIds.put(TileEntityFurnace.class, "Furnace");
+        tileEntityIds.put(TileEntityChest.class, "Chest");
+        tileEntityIds.put(TileEntityEnderChest.class, "EnderChest");
+        tileEntityIds.put(TileEntityRecordPlayer.class, "RecordPlayer");
+        tileEntityIds.put(TileEntityDispenser.class, "Trap");
+        tileEntityIds.put(TileEntityDropper.class, "Dropper");
+        tileEntityIds.put(TileEntitySign.class, "Sign");
+        tileEntityIds.put(TileEntityMobSpawner.class, "MobSpawner");
+        tileEntityIds.put(TileEntityNote.class, "Music");
+        tileEntityIds.put(TileEntityPiston.class, "Piston");
+        tileEntityIds.put(TileEntityBrewingStand.class, "Cauldron");
+        tileEntityIds.put(TileEntityEnchantTable.class, "EnchantTable");
+        tileEntityIds.put(TileEntityEnderPortal.class, "Airportal");
+        tileEntityIds.put(TileEntityCommand.class, "Control");
+        tileEntityIds.put(TileEntityBeacon.class, "Beacon");
+        tileEntityIds.put(TileEntitySkull.class, "Skull");
+        tileEntityIds.put(TileEntityLightDetector.class, "DLDetector");
+        tileEntityIds.put(TileEntityHopper.class, "Hopper");
+        tileEntityIds.put(TileEntityComparator.class, "Comparator");
     }
-
+    
 
     public static boolean isTileEntityBlock(int typeId) {
         return tileEntityTypes.containsKey(typeId);
@@ -367,6 +387,14 @@ public class MaterialID {
         return tileEntityTypes.get(typeId);
     }
 
+    public static String getTileEntityId(int typeId) {
+        Class<? extends TileEntity> tec = tileEntityTypes.get(typeId);
+        return getTileEntityId(tec);
+    }
+
+    public static String getTileEntityId(Class<? extends TileEntity> cls) {
+        return tileEntityIds.get(cls);
+    }
     public static int rotate90(int type, int data) {
         switch (type) {
         case TORCH:

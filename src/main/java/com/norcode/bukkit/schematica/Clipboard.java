@@ -347,7 +347,7 @@ public class Clipboard {
         if (MaterialID.isTileEntityBlock(block.getTypeId())) {
             CraftWorld cw = (CraftWorld) block.getWorld();
             TileEntity te = cw.getTileEntityAt(block.getX(), block.getY(), block.getZ());
-            NBTTagCompound tag = new NBTTagCompound();
+            NBTTagCompound tag = new NBTTagCompound(MaterialID.getTileEntityId(block.getTypeId()));
             te.b(tag);
             tag.setInt("x", x);
             tag.setInt("y", y);
@@ -367,24 +367,21 @@ public class Clipboard {
         
         state.setTypeId(block.getType());
         state.setRawData(block.getData());
-        Schematica.getInstance().getLogger().info("FROM " + old + " TO " +  block + " @ " + loc + " Successful? " + state.update(true, false));
-        Schematica.getInstance().getLogger().info("re-checking." + loc.getBlock().getType() + ":" + loc.getBlock().getData());
+        state.update(true, false);
+
         if (block.hasTag()) {
-            Schematica.getInstance().getLogger().info("Copying TileEntity Data");
+            Schematica.getInstance().getLogger().info("Copying TileEntity Data: " + block.getTag());
             TileEntity te;
             NBTTagCompound btag = (NBTTagCompound) block.getTag().clone();
+            btag.setName(MaterialID.getTileEntityId(block.getType()));
             btag.setInt("x", loc.getBlockX());
             btag.setInt("y", loc.getBlockY());
             btag.setInt("z", loc.getBlockZ());
-            try {
-                te = MaterialID.getTileEntityClass(block.getType()).newInstance();
-                te.a(btag);
-                ((CraftWorld) loc.getWorld()).getHandle().setTileEntity(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), te);
-            } catch (InstantiationException ex) {
-                Logger.getLogger(Clipboard.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IllegalAccessException ex) {
-                Logger.getLogger(Clipboard.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            te = ((CraftWorld) loc.getWorld()).getTileEntityAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()); // MaterialID.getTileEntityClass(block.getType()).newInstance();
+            te.a(btag);
+            te.update();
+            //((CraftWorld) loc.getWorld()).getHandle().setTileEntity(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), te);
+
         }
     }
 
@@ -434,10 +431,6 @@ public class Clipboard {
             }
             queue.addAll(layerQueue);
             if (!yBuffer.isEmpty()) {
-                String ybufs = "";
-                for (BlockVector bv : yBuffer) { ybufs += bv.toString() + ", "; }
-                if (ybufs.endsWith(", ")) ybufs = ybufs.substring(0,ybufs.length()-2);
-                Schematica.getInstance().getLogger().info("Flushing yBuffer: " + ybufs);
                 queue.addAll(yBuffer);
                 yBuffer.clear();
             }
