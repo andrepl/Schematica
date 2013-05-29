@@ -1,3 +1,22 @@
+/* This file is part of Schematica.
+ * Copyright (C) 2013 metalhedd <https://github.com/andrepl/>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Schematica.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This code is based heavily on WorldEdit by sk89q <http://www.sk89q.com>
+ */
+
 package com.norcode.bukkit.schematica;
 import java.util.*;
 
@@ -7,25 +26,6 @@ import net.minecraft.server.v1_5_R3.NBTTagCompound;
 import net.minecraft.server.v1_5_R3.NBTTagInt;
 import net.minecraft.server.v1_5_R3.NBTTagList;
 import net.minecraft.server.v1_5_R3.TileEntity;
-import net.minecraft.server.v1_5_R3.TileEntityBeacon;
-import net.minecraft.server.v1_5_R3.TileEntityBrewingStand;
-import net.minecraft.server.v1_5_R3.TileEntityChest;
-import net.minecraft.server.v1_5_R3.TileEntityCommand;
-import net.minecraft.server.v1_5_R3.TileEntityComparator;
-import net.minecraft.server.v1_5_R3.TileEntityDispenser;
-import net.minecraft.server.v1_5_R3.TileEntityDropper;
-import net.minecraft.server.v1_5_R3.TileEntityEnchantTable;
-import net.minecraft.server.v1_5_R3.TileEntityEnderChest;
-import net.minecraft.server.v1_5_R3.TileEntityEnderPortal;
-import net.minecraft.server.v1_5_R3.TileEntityFurnace;
-import net.minecraft.server.v1_5_R3.TileEntityHopper;
-import net.minecraft.server.v1_5_R3.TileEntityLightDetector;
-import net.minecraft.server.v1_5_R3.TileEntityMobSpawner;
-import net.minecraft.server.v1_5_R3.TileEntityNote;
-import net.minecraft.server.v1_5_R3.TileEntityPiston;
-import net.minecraft.server.v1_5_R3.TileEntityRecordPlayer;
-import net.minecraft.server.v1_5_R3.TileEntitySign;
-import net.minecraft.server.v1_5_R3.TileEntitySkull;
 
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -34,11 +34,14 @@ import org.bukkit.util.BlockVector;
 
 import com.norcode.bukkit.schematica.exceptions.SchematicLoadException;
 import com.norcode.bukkit.schematica.exceptions.SchematicSaveException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 
+/**
+ * Temporary storage for cuboid regions.
+ *
+ */
 public class Clipboard {
     private static final int MAX_SIZE = Short.MAX_VALUE - Short.MIN_VALUE;
 
@@ -58,35 +61,75 @@ public class Clipboard {
         this.data = new ClipboardBlock[this.size.getBlockX()][this.size.getBlockY()][this.size.getBlockZ()];
     }
 
+    /**
+     * Gets the origin point of the clipboard
+     *
+     * The origin is the point in the world where the clipboards offset point originally came from in the world.
+     *
+     * @return a BlockVector representing the origin point of the clipboard.
+     */
     public BlockVector getOrigin() {
         return origin;
     }
 
+    /**
+     * Sets the origin point of the clipboard
+     *
+     * @param origin the origin BlockVector
+     */
     public void setOrigin(BlockVector origin) {
         this.origin = origin;
     }
 
 
+    /**
+     * Gets the offset point of the clipboard
+     *
+     * @return the point from which the clipboard is copied/pasted and around which it is rotated
+     */
     public BlockVector getOffset() {
         return offset;
     }
 
-
+    /**
+     * Sets the offset point of the clipboard.
+     *
+     * @param offset the new offset point for the clipboard
+     */
     public void setOffset(BlockVector offset) {
         this.offset = offset;
     }
 
-
+    /**
+     * Gets the size of the clipboard
+     *
+     * @return a BlockVector representing the size of the current clipboard
+     */
     public BlockVector getSize() {
         return size;
     }
 
-
+    /**
+     * Sets the clipboards size.
+     *
+     * Do NOT use this to resize an existing clipboard.  It is only intended for use during initialization of a new clipboard.
+     *
+     * @param size a BlockVector representing the size of the clipboard
+     */
     public void setSize(BlockVector size) {
         this.size = size;
     }
 
 
+    /**
+     * Load an MCEdit Format Schematic
+     *
+     * @param input a byte[] of raw schematic contents.
+     *
+     * @return a new Clipboard containing the schematic.
+     *
+     * @throws SchematicLoadException (actually doesn't yet)
+     */
     public static Clipboard fromSchematic(byte[] input) throws SchematicLoadException {
         NBTTagCompound tag = NBTCompressedStreamTools.a(input);
         
@@ -179,6 +222,13 @@ public class Clipboard {
         return cb;
     }
 
+    /**
+     * Saves the current clipboard contents into a new schematic.
+     *
+     * @return a byte[] in MCEdit schematic format.
+     *
+     * @throws SchematicSaveException if the Width, Height or Length of the clipboard exceed Short.MAX_SIZE
+     */
     public byte[] toSchematic() throws SchematicSaveException {
         int width = getWidth();
         int height = getHeight();
@@ -254,7 +304,14 @@ public class Clipboard {
         return NBTCompressedStreamTools.a(tag);
     }
 
-    private static BlockVector rotateBlockVector(BlockVector v, double angle) {
+    /**
+     * rotates a BlockVector in 90 degree increments
+     *
+     * @param v a BlockVector to be rotated
+     * @param angle degrees to rotate
+     * @return a new rotated BlockVector
+     */
+    public static BlockVector rotateBlockVector(BlockVector v, double angle) {
         angle = Math.toRadians(angle);
         int x = v.getBlockX();
         int z = v.getBlockZ();
@@ -263,6 +320,11 @@ public class Clipboard {
         return new BlockVector(x2,v.getBlockY(),z2);
     }
 
+    /**
+     * Rotates the entire clipboard in 90 degree increments.
+     *
+     * @param angle rotation
+     */
     public void rotate2D(int angle) {
         angle = angle % 360;
         if (angle % 90 != 0) {
@@ -311,38 +373,87 @@ public class Clipboard {
         offset = new BlockVector(rotateBlockVector(offset, angle).subtract(new org.bukkit.util.Vector(shiftX, 0, shiftZ)));
     }
 
+    /**
+     * Gets the {@link ClipboardBlock} at the specified clipboard position
+     *
+     * @param x clipboard x position
+     * @param y clipboard y position
+     * @param z clipboard z position
+     *
+     * @return
+     */
     public ClipboardBlock getBlock(int x, int y, int z) {
         return data[x][y][z];
     }
 
-    public ClipboardBlock getBlock(BlockVector vec) {
-        return getBlock(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ());
+    /**
+     * Gets the {@link ClipboardBlock} at the specified clipboard position
+     *
+     * @param position BlockVector - clipboard position
+     * @return
+     */
+    public ClipboardBlock getBlock(BlockVector position) {
+        return getBlock(position.getBlockX(), position.getBlockY(), position.getBlockZ());
     }
 
+    /**
+     * Sets a the block at the specified clipboard position.
+     *
+     * @param x clipboard x position
+     * @param y clipboard y position
+     * @param z clipboard z position
+     * @param block {@link ClipboardBlock}
+     */
     public void setBlock(int x, int y, int z, ClipboardBlock block) {
         data[x][y][z] = block;
     }
 
-    public void setBlock(BlockVector vec, ClipboardBlock block) {
-        setBlock(vec.getBlockX(), vec.getBlockY(), vec.getBlockZ(), block);
+    /**
+     * Sets a the block at the specified clipboard position.
+     *
+     * @param position Clipboard position.
+     * @param block {@link ClipboardBlock}
+     */
+    public void setBlock(BlockVector position, ClipboardBlock block) {
+        setBlock(position.getBlockX(), position.getBlockY(), position.getBlockZ(), block);
     }
 
+    /**
+     * Gets the height (Y value) of the clipboard
+     *
+     * @return clipboard height
+     */
     private int getHeight() {
         return size.getBlockY();
     }
 
-
+    /**
+     * Gets the length (Z value) of the clipboard
+     *
+     * @return clipboard length
+     */
     private int getLength() {
         return size.getBlockZ();
     }
 
-
+    /**
+     * Gets the width (X value) of the clipboard
+     *
+     * @return clipboard width
+     */
     private int getWidth() {
         return size.getBlockX();
     }
 
+    /**
+     * Copies the specified block to the clipboard at x, y, z.
+     *
+     * @param block a bukkit Block object
+     * @param x clipboard x position
+     * @param y clipboard y position
+     * @param z clipboard z position
+     */
     public void copyBlockFromWorld(Block block, int x, int y, int z) {
-        Schematica.getInstance().getLogger().info("Copying " + block + " to clipboard " + x + "," + y + "," + z);
         ClipboardBlock cbb = new ClipboardBlock(block.getTypeId(), block.getData());
         if (MaterialID.isTileEntityBlock(block.getTypeId())) {
             CraftWorld cw = (CraftWorld) block.getWorld();
@@ -357,10 +468,22 @@ public class Clipboard {
         data[x][y][z] = cbb;
     }
 
-    public void copyBlockFromWorld(Block block, BlockVector vec) {
-        copyBlockFromWorld(block, vec.getBlockX(), vec.getBlockY(), vec.getBlockZ());
+    /**
+     * Copies the specified block to the clipboard at position.
+     *
+     * @param block a bukkit Block object
+     * @param position clipboard position
+     */
+    public void copyBlockFromWorld(Block block, BlockVector position) {
+        copyBlockFromWorld(block, position.getBlockX(), position.getBlockY(), position.getBlockZ());
     }
 
+    /**
+     * Copies the specified {@link ClipboardBlock} to the specified world location.
+     *
+     * @param block a {@link ClipboardBlock} to be placed in the world.
+     * @param loc a org.bukkit.Location object at which to place the block.
+     */
     public void copyBlockToWorld(ClipboardBlock block, Location loc) {
         BlockState state = loc.getBlock().getState();
         Material old = state.getType();
@@ -370,21 +493,25 @@ public class Clipboard {
         state.update(true, false);
 
         if (block.hasTag()) {
-            Schematica.getInstance().getLogger().info("Copying TileEntity Data: " + block.getTag());
             TileEntity te;
             NBTTagCompound btag = (NBTTagCompound) block.getTag().clone();
             btag.setName(MaterialID.getTileEntityId(block.getType()));
             btag.setInt("x", loc.getBlockX());
             btag.setInt("y", loc.getBlockY());
             btag.setInt("z", loc.getBlockZ());
-            te = ((CraftWorld) loc.getWorld()).getTileEntityAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()); // MaterialID.getTileEntityClass(block.getType()).newInstance();
+            te = ((CraftWorld) loc.getWorld()).getTileEntityAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
             te.a(btag);
             te.update();
-            //((CraftWorld) loc.getWorld()).getHandle().setTileEntity(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ(), te);
-
         }
     }
 
+
+    /**
+     *
+     * @param shuffle whether or not to shuffle the list so as to look more natural during slow builds.
+     * @param ignoreTypes a set of block ID's to be left out of the list. if null, only air is ignored.
+     * @return a list of clipboard points in an order suitable for being safely added to the world.
+     */
     public List<BlockVector> getPasteQueue(boolean shuffle, Set<Integer> ignoreTypes) {
         if (ignoreTypes == null) {
             ignoreTypes = onlyAir;
@@ -443,8 +570,15 @@ public class Clipboard {
         return queue;
     }
 
-    public List<BlockVector> getCutQueue(boolean shuffle, HashSet<Integer> ignoreBlocks) {
-        List<BlockVector> queue = getPasteQueue(shuffle, ignoreBlocks);
+    /**
+     *
+     *
+     * @param shuffle whether or not to shuffle the list so as to look more natural during slow builds.
+     * @param ignoreTypes a set of block ID's to be left out of the list. if null, only air is ignored.
+     * @return a list of clipboard points in an order suitable for being safely removed from the world.
+     */
+    public List<BlockVector> getCutQueue(boolean shuffle, HashSet<Integer> ignoreTypes) {
+        List<BlockVector> queue = getPasteQueue(shuffle, ignoreTypes);
         Collections.reverse(queue);
         return queue;
     }
