@@ -14,25 +14,6 @@ public class ClipboardTest extends TestCase {
         super(name);
 
     }
-    public void testVectorRotate() {
-        for (int x=0;x<3;x++) {
-            for (int y=0;y<4;y++) {
-                for (int z=0;z<5;z++) {
-                    com.sk89q.worldedit.BlockVector weVec = new com.sk89q.worldedit.BlockVector(x,y,z);
-                    BlockVector bVec = new BlockVector(x,y,z);
-                    com.sk89q.worldedit.BlockVector weVec2 = weVec.transform2D(180,0,0,0,0).toBlockVector();
-                    BlockVector bVec2 = Clipboard.transformBlockVector(bVec, 180, 0, 0, 0, 0);
-
-                    System.out.println(weVec2 + "==" + bVec2);
-                    System.out.println(weVec2.getBlockX() + "," + weVec.getBlockY() + "," + weVec.getBlockZ() + "==" + bVec2.getBlockX() + "," + bVec.getBlockY() + "," + bVec.getBlockZ());
-                    Assert.assertEquals(weVec2.getBlockX(), bVec2.getBlockX());
-                    Assert.assertEquals(weVec2.getBlockY(), bVec2.getBlockY());
-                    Assert.assertEquals(weVec2.getBlockZ(), bVec2.getBlockZ());
-                }
-            }
-        }
-
-    }
 
     public void testRotateSize() throws Exception {
         Clipboard clipboard = new Clipboard(new BlockVector(3,4,5));
@@ -48,18 +29,14 @@ public class ClipboardTest extends TestCase {
         Assert.assertEquals(clipboard.getSize().getBlockX(), originalSize.getBlockZ());
         Assert.assertEquals(clipboard.getSize().getBlockY(), originalSize.getBlockY());
         Assert.assertEquals(clipboard.getSize().getBlockZ(), originalSize.getBlockX());
-        System.out.println(originalSize + "=>" + clipboard.getSize());
         clipboard.rotate2D(90);
         Assert.assertEquals(clipboard.getSize().getBlockX(), originalSize.getBlockX());
         Assert.assertEquals(clipboard.getSize().getBlockY(), originalSize.getBlockY());
         Assert.assertEquals(clipboard.getSize().getBlockZ(), originalSize.getBlockZ());
-        System.out.println(originalSize + "=>" + clipboard.getSize());
         clipboard.rotate2D(180);
         Assert.assertEquals(clipboard.getSize().getBlockX(), originalSize.getBlockX());
         Assert.assertEquals(clipboard.getSize().getBlockY(), originalSize.getBlockY());
         Assert.assertEquals(clipboard.getSize().getBlockZ(), originalSize.getBlockZ());
-        System.out.println(originalSize + "=>" + clipboard.getSize());
-
     }
 
     @Ignore
