@@ -84,5 +84,4 @@ public class Selection {
     public boolean isComplete() {
         return pt1 != null && pt2 != null && pt2.getWorld().getName().equals(pt1.getWorld().getName()); 
     }
-
 }

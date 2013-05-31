@@ -609,7 +609,7 @@ public class MaterialID {
         case ANVIL:
             return data ^ 0x1;
 
-        case BED:
+        case BED_BLOCK:
             if ((data & 7) < 4) {
                 return data & ~3 | (data+1) & 3;
             }
@@ -822,7 +822,7 @@ public class MaterialID {
         case ANVIL:
             return data ^ 0x1;
 
-        case  BED:
+        case  BED_BLOCK:
             if ((data & 7) < 4) {
                 return data & ~3 | (data-1) & 3;
             }

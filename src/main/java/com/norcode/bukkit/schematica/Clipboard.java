@@ -18,7 +18,6 @@
  */
 
 package com.norcode.bukkit.schematica;
-import java.util.*;
 
 import net.minecraft.server.v1_5_R3.NBTBase;
 import net.minecraft.server.v1_5_R3.NBTCompressedStreamTools;
@@ -28,15 +27,19 @@ import net.minecraft.server.v1_5_R3.NBTTagList;
 import net.minecraft.server.v1_5_R3.TileEntity;
 
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_5_R3.CraftWorld;
 import org.bukkit.util.BlockVector;
+import org.bukkit.util.Vector;
 
 import com.norcode.bukkit.schematica.exceptions.SchematicLoadException;
 import com.norcode.bukkit.schematica.exceptions.SchematicSaveException;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
+
+import java.util.*;
 
 /**
  * Temporary storage for cuboid regions.
@@ -137,7 +140,6 @@ public class Clipboard {
         short length = tag.getShort("Length");
         short height = tag.getShort("Height");
         BlockVector size = new BlockVector(width, height, length);
-        
         int originX = tag.getInt("WEOriginX");
         int originY = tag.getInt("WEOriginY");
         int originZ = tag.getInt("WEOriginZ");
@@ -168,7 +170,7 @@ public class Clipboard {
                 }
             }
         }
-
+        displayArray(blocks);
         // Need to pull out tile entities
         NBTTagList tileEntities = tag.getList("TileEntities");
 
@@ -185,7 +187,7 @@ public class Clipboard {
             int x = 0;
             int y = 0;
             int z = 0;
-            for (NBTBase v: (List<NBTBase>) cTag.c()) {
+            for (NBTBase v: (Collection<NBTBase>) cTag.c()) {
                 if (v instanceof NBTTagInt) {
                     NBTTagInt intTag = (NBTTagInt) v;
                     if (v.getName().equals("x")) {
@@ -222,12 +224,19 @@ public class Clipboard {
         return cb;
     }
 
+    private static void displayArray(short[] blocks) {
+        String s = "";
+        for (short b: blocks) {
+            s += Short.toString(b) + ",";
+        }
+    }
+
     /**
      * Saves the current clipboard contents into a new schematic.
      *
      * @return a byte[] in MCEdit schematic format.
      *
-     * @throws SchematicSaveException if the Width, Height or Length of the clipboard exceed Short.MAX_SIZE
+     * @throws SchematicSaveException if the Width, Height or Length of the clipboard exceed Short.MAX_VALUE
      */
     public byte[] toSchematic() throws SchematicSaveException {
         int width = getWidth();
@@ -244,7 +253,7 @@ public class Clipboard {
         }
 
         NBTTagCompound tag = new NBTTagCompound("Schematic");
-        tag.setShort("Width",  (short) length);
+        tag.setShort("Width",  (short) width);
         tag.setShort("Length", (short) length);
         tag.setShort("Height", (short) height);
         tag.setString("Materials",  "Alpha");
@@ -311,13 +320,18 @@ public class Clipboard {
      * @param angle degrees to rotate
      * @return a new rotated BlockVector
      */
-    public static BlockVector rotateBlockVector(BlockVector v, double angle) {
+    public static BlockVector transformBlockVector(BlockVector v, double angle, int aboutX, int aboutZ, int translateX, int translateZ) {
         angle = Math.toRadians(angle);
-        int x = v.getBlockX();
-        int z = v.getBlockZ();
+        double x = v.getBlockX() - aboutX;
+        double z = v.getBlockZ() - aboutZ;
         double x2 = x * Math.cos(angle) - z * Math.sin(angle);
         double z2 = x * Math.sin(angle) + z * Math.cos(angle);
-        return new BlockVector(x2,v.getBlockY(),z2);
+
+        return new BlockVector(
+                (int)Math.round(x2 + aboutX + translateX),
+                v.getBlockY(),
+                (int)Math.round(z2 + aboutZ + translateZ)
+        );
     }
 
     /**
@@ -336,9 +350,9 @@ public class Clipboard {
         int width = getWidth();
         int length = getLength();
         int height = getHeight();
-        BlockVector sizeRotated = rotateBlockVector(size, angle);
-        int shiftX = sizeRotated.getX() < 0 ? -sizeRotated.getBlockX() - 1 : 0;
-        int shiftZ = sizeRotated.getZ() < 0 ? -sizeRotated.getBlockZ() - 1 : 0;
+        BlockVector sizeRotated = transformBlockVector(size, angle, 0,0,0,0);
+        int shiftX = sizeRotated.getBlockX() < 0 ? -sizeRotated.getBlockX() - 1 : 0;
+        int shiftZ = sizeRotated.getBlockZ() < 0 ? -sizeRotated.getBlockZ() - 1 : 0;
 
         ClipboardBlock newData[][][] = new ClipboardBlock
                 [Math.abs(sizeRotated.getBlockX())]
@@ -347,7 +361,7 @@ public class Clipboard {
 
         for (int x = 0; x < width; ++x) {
             for (int z = 0; z < length; ++z) {
-                BlockVector v = rotateBlockVector(new BlockVector(x, 0, z), angle);
+                BlockVector v = transformBlockVector(new BlockVector(x, 0, z), angle, 0, 0, 0, 0);
                 int newX = v.getBlockX();
                 int newZ = v.getBlockZ();
                 for (int y = 0; y < height; ++y) {
@@ -370,7 +384,12 @@ public class Clipboard {
         size = new BlockVector(Math.abs(sizeRotated.getBlockX()),
                           Math.abs(sizeRotated.getBlockY()),
                           Math.abs(sizeRotated.getBlockZ()));
-        offset = new BlockVector(rotateBlockVector(offset, angle).subtract(new org.bukkit.util.Vector(shiftX, 0, shiftZ)));
+        Vector tmpOff = transformBlockVector(offset, angle,0,0,0,0).subtract(new org.bukkit.util.BlockVector(shiftX, 0, shiftZ));
+
+        offset = new BlockVector(
+                (int) Math.round(tmpOff.getX()),
+                (int) Math.round(tmpOff.getY()),
+                (int) Math.round(tmpOff.getZ()));
     }
 
     /**
@@ -479,32 +498,31 @@ public class Clipboard {
     }
 
     /**
-     * Copies the specified {@link ClipboardBlock} to the specified world location.
-     *
-     * @param block a {@link ClipboardBlock} to be placed in the world.
-     * @param loc a org.bukkit.Location object at which to place the block.
+     * Copies the specified block to the clipboard.
+     * the position in the clipboard is determinted by the clipboard's current origin.
      */
-    public void copyBlockToWorld(ClipboardBlock block, Location loc) {
-        BlockState state = loc.getBlock().getState();
-        Material old = state.getType();
-        
-        state.setTypeId(block.getType());
-        state.setRawData(block.getData());
-        state.update(true, false);
+    public void copyBlockFromWorld(Block block) {
+        int x = block.getLocation().getBlockX() - this.getOrigin().getBlockX();
+        int y = block.getLocation().getBlockY() - this.getOrigin().getBlockY();
+        int z = block.getLocation().getBlockZ() - this.getOrigin().getBlockZ();
+        copyBlockFromWorld(block, x, y, z);
 
-        if (block.hasTag()) {
-            TileEntity te;
-            NBTTagCompound btag = (NBTTagCompound) block.getTag().clone();
-            btag.setName(MaterialID.getTileEntityId(block.getType()));
-            btag.setInt("x", loc.getBlockX());
-            btag.setInt("y", loc.getBlockY());
-            btag.setInt("z", loc.getBlockZ());
-            te = ((CraftWorld) loc.getWorld()).getTileEntityAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-            te.a(btag);
-            te.update();
-        }
     }
 
+    /**
+     * Gets the Location in the specified world that corresponds to the specified
+     * clipboard point using the clipboards current origin point.
+     *
+     * @param clipboardPoint the position in the clipboard
+     * @param world the world
+     * @return a Location in the world that corresponds to the given clipboard position
+     */
+    public Location getWorldLocationFor(BlockVector clipboardPoint, World world) {
+        return new Location(world,
+                getOrigin().getBlockX() + clipboardPoint.getBlockX(),
+                getOrigin().getBlockY() + clipboardPoint.getBlockY(),
+                getOrigin().getBlockZ() + clipboardPoint.getBlockZ());
+    }
 
     /**
      *
@@ -568,6 +586,44 @@ public class Clipboard {
         }
         queue.addAll(finishBuffer);
         return queue;
+    }
+
+
+    /**
+     * Copies the block at the specified clipboard position into the
+     * world location determined by the clipboard's current origin.
+     *
+     */
+     public void copyBlockToWorld(BlockVector position, World world) {
+         copyBlockToWorld(getBlock(position), getWorldLocationFor(position, world));
+     }
+
+
+     /**
+     * Copies the specified {@link ClipboardBlock} to the specified world location.
+     *
+     * @param block a {@link ClipboardBlock} to be placed in the world.
+     * @param loc a org.bukkit.Location object at which to place the block.
+     */
+    public void copyBlockToWorld(ClipboardBlock block, Location loc) {
+        BlockState state = loc.getBlock().getState();
+        Material old = state.getType();
+
+        state.setTypeId(block.getType());
+        state.setRawData(block.getData());
+        state.update(true, false);
+
+        if (block.hasTag()) {
+            TileEntity te;
+            NBTTagCompound btag = (NBTTagCompound) block.getTag().clone();
+            btag.setName(MaterialID.getTileEntityId(block.getType()));
+            btag.setInt("x", loc.getBlockX());
+            btag.setInt("y", loc.getBlockY());
+            btag.setInt("z", loc.getBlockZ());
+            te = ((CraftWorld) loc.getWorld()).getTileEntityAt(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+            te.a(btag);
+            te.update();
+        }
     }
 
     /**

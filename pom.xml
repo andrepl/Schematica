@@ -2,12 +2,16 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.norcode.bukkit.schematica</groupId>
   <artifactId>Schematica</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <name>Schematica</name>
   <repositories>    
     <repository>
       <id>bukkit-releases-repo</id>
       <url>http://repo.bukkit.org/content/repositories/releases/</url>
+    </repository>
+    <repository>
+        <id>sk89q-repo</id>
+        <url>http://maven.sk89q.com/repo/</url>
     </repository>
   </repositories>
   <dependencies>
@@ -16,10 +20,20 @@
         <artifactId>craftbukkit</artifactId>
         <version>1.5.2-R0.1</version>
     </dependency>
-    <dependency>
+      <dependency>
+          <groupId>com.sk89q</groupId>
+          <artifactId>worldedit</artifactId>
+          <version>5.5.7-SNAPSHOT</version>
+      </dependency>
+      <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
       <version>1.5.2-R0.1</version>
     </dependency>
+      <dependency>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+          <version>4.9</version>
+      </dependency>
   </dependencies>
 </project>

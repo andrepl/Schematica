@@ -32,6 +32,11 @@ public class ClipboardBlock {
         this.data = data;
     }
 
+    public ClipboardBlock(ClipboardBlock block) {
+        this.type = block.getType();
+        this.data = block.getData();
+    }
+
     public int getType() {
         return type;
     }
