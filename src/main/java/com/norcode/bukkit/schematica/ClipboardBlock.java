@@ -75,4 +75,13 @@ public class ClipboardBlock {
     public String toString() {
         return "{ClipboardBlock[" + Material.getMaterial(this.getType()).name() + ":" + this.getData() + "]";
     }
+
+    @Override
+    public ClipboardBlock clone() {
+        ClipboardBlock cbb = new ClipboardBlock(this.type, this.data);
+        if (hasTag()) {
+            cbb.setTag((NBTTagCompound) getTag().clone());
+        }
+        return cbb;
+    }
 }

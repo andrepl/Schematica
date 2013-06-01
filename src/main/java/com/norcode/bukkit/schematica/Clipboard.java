@@ -645,4 +645,18 @@ public class Clipboard {
         return "{Clipboard[" + s.getBlockX() + "x" + s.getBlockY() + "x" + s.getBlockZ() + "]}";
     }
 
+    @Override
+    public Clipboard clone() {
+        Clipboard cb = new Clipboard(this.size.clone());
+        cb.setOrigin(this.getOrigin().clone());
+        cb.setOffset(this.getOffset().clone());
+        for (int x=0;x<cb.getWidth();x++) {
+            for (int y=0; y<cb.getHeight();y++) {
+                for (int z=0;z<cb.getLength();z++) {
+                    cb.setBlock(x,y,z, getBlock(x,y,z).clone());
+                }
+            }
+        }
+        return cb;
+    }
 }
