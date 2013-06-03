@@ -488,7 +488,7 @@ public class MaterialID {
             break;
 
         case WOODEN_DOOR:
-        case IRON_DOOR:
+        case IRON_DOOR_BLOCK:
             if ((data & 0x8) == 8) {
                 return data;
             }
@@ -703,7 +703,7 @@ public class MaterialID {
             break;
 
         case WOODEN_DOOR:
-        case IRON_DOOR:
+        case IRON_DOOR_BLOCK:
             if ((data & 0x8) == 8) {
                 return data;
             }
