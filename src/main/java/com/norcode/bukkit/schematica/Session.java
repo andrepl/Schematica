@@ -77,6 +77,7 @@ public class Session {
                 }
             }
         }
+        this.clipboard.setOrigin(getSelection().getMin().toVector().toBlockVector());
         BlockVector playerPos = Bukkit.getServer().getPlayer(playerName).getLocation().toVector().toBlockVector();
         this.clipboard.setOffset(getSelection().getMin().subtract(playerPos).toVector().toBlockVector());
     }
