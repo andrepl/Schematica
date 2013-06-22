@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.norcode.bukkit.schematica</groupId>
   <artifactId>Schematica</artifactId>
-  <version>0.1.3</version>
+  <version>0.1.5-SNAPSHOT</version>
   <name>Schematica</name>
   <repositories>    
     <repository>
@@ -14,17 +14,12 @@
     <dependency>
       <groupId>org.bukkit</groupId>
         <artifactId>craftbukkit</artifactId>
-        <version>1.5.2-R0.1</version>
+        <version>1.5.2-R1.0</version>
     </dependency>
-      <dependency>
-      <groupId>org.bukkit</groupId>
-      <artifactId>bukkit</artifactId>
-      <version>1.5.2-R0.1</version>
+    <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.9</version>
     </dependency>
-      <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <version>4.9</version>
-      </dependency>
   </dependencies>
 </project>

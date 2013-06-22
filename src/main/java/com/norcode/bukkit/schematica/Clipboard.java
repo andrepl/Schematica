@@ -477,12 +477,14 @@ public class Clipboard {
         if (MaterialID.isTileEntityBlock(block.getTypeId())) {
             CraftWorld cw = (CraftWorld) block.getWorld();
             TileEntity te = cw.getTileEntityAt(block.getX(), block.getY(), block.getZ());
-            NBTTagCompound tag = new NBTTagCompound(MaterialID.getTileEntityId(block.getTypeId()));
-            te.b(tag);
-            tag.setInt("x", x);
-            tag.setInt("y", y);
-            tag.setInt("z", z);
-            cbb.setTag(tag);
+            if (te != null) {
+                NBTTagCompound tag = new NBTTagCompound(MaterialID.getTileEntityId(block.getTypeId()));
+                te.b(tag);
+                tag.setInt("x", x);
+                tag.setInt("y", y);
+                tag.setInt("z", z);
+                cbb.setTag(tag);
+            }
         }
         data[x][y][z] = cbb;
     }
