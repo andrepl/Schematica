@@ -135,7 +135,6 @@ public class Clipboard {
      */
     public static Clipboard fromSchematic(byte[] input) throws SchematicLoadException {
         NBTTagCompound tag = NBTCompressedStreamTools.a(input);
-        
         short width = tag.getShort("Width");
         short length = tag.getShort("Length");
         short height = tag.getShort("Height");
@@ -158,6 +157,7 @@ public class Clipboard {
         if (tag.hasKey("AddBlocks")) {
             addId = tag.getByteArray("AddBlocks");
         }
+
         // Combine the AddBlocks data with the first 8-bit block ID
         for (int index = 0; index < blockIds.length; index++) {
             if ((index >> 1) >= addId.length) { // No corresponding AddBlocks index
@@ -170,7 +170,7 @@ public class Clipboard {
                 }
             }
         }
-        displayArray(blocks);
+
         // Need to pull out tile entities
         NBTTagList tileEntities = tag.getList("TileEntities");
 
@@ -201,7 +201,6 @@ public class Clipboard {
             }
             tileEntitiesMap.put(new BlockVector(x,y,z), cTag);
         }
-
         Clipboard cb = new Clipboard(size);
         cb.origin = origin;
         cb.offset = offset;
@@ -222,13 +221,6 @@ public class Clipboard {
             }
         }
         return cb;
-    }
-
-    private static void displayArray(short[] blocks) {
-        String s = "";
-        for (short b: blocks) {
-            s += Short.toString(b) + ",";
-        }
     }
 
     /**
@@ -316,21 +308,23 @@ public class Clipboard {
     /**
      * rotates a BlockVector in 90 degree increments
      *
-     * @param v a BlockVector to be rotated
+     * @param vx x value of vector to be rotated
+     * @param vy y value of vector to be rotated
+     * @param vz z value of vector to be rotated
      * @param angle degrees to rotate
      * @return a new rotated BlockVector
      */
-    public static BlockVector transformBlockVector(BlockVector v, double angle, int aboutX, int aboutZ, int translateX, int translateZ) {
+    public static BlockVector transformBlockVector(int vx, int vy, int vz, double angle, int aboutX, int aboutZ, int translateX, int translateZ) {
         angle = Math.toRadians(angle);
-        double x = v.getBlockX() - aboutX;
-        double z = v.getBlockZ() - aboutZ;
+        double x = vx - aboutX;
+        double z = vz - aboutZ;
         double x2 = x * Math.cos(angle) - z * Math.sin(angle);
         double z2 = x * Math.sin(angle) + z * Math.cos(angle);
 
         return new BlockVector(
-                (int)Math.round(x2 + aboutX + translateX),
-                v.getBlockY(),
-                (int)Math.round(z2 + aboutZ + translateZ)
+                (int) Math.round(x2 + aboutX + translateX),
+                vy,
+                (int) Math.round(z2 + aboutZ + translateZ)
         );
     }
 
@@ -350,7 +344,7 @@ public class Clipboard {
         int width = getWidth();
         int length = getLength();
         int height = getHeight();
-        BlockVector sizeRotated = transformBlockVector(size, angle, 0,0,0,0);
+        BlockVector sizeRotated = transformBlockVector(size.getBlockX(), size.getBlockY(), size.getBlockZ(), angle, 0,0,0,0);
         int shiftX = sizeRotated.getBlockX() < 0 ? -sizeRotated.getBlockX() - 1 : 0;
         int shiftZ = sizeRotated.getBlockZ() < 0 ? -sizeRotated.getBlockZ() - 1 : 0;
 
@@ -359,14 +353,17 @@ public class Clipboard {
                 [Math.abs(sizeRotated.getBlockY())]
                 [Math.abs(sizeRotated.getBlockZ())];
 
+        int newX, newZ;
+        ClipboardBlock block;
+        BlockVector v;
         for (int x = 0; x < width; ++x) {
             for (int z = 0; z < length; ++z) {
-                BlockVector v = transformBlockVector(new BlockVector(x, 0, z), angle, 0, 0, 0, 0);
-                int newX = v.getBlockX();
-                int newZ = v.getBlockZ();
+                v = transformBlockVector(x, 0, z, angle, 0, 0, 0, 0);
+                newX = shiftX + v.getBlockX();
+                newZ = shiftZ + v.getBlockZ();
                 for (int y = 0; y < height; ++y) {
-                    ClipboardBlock block = data[x][y][z];
-                    newData[shiftX + newX][y][shiftZ + newZ] = block;
+                    block = data[x][y][z];
+                    newData[newX][y][newZ] = block;
                     if (reverse) {
                         for (int i = 0; i < numRotations; ++i) {
                             block.rotate90Reverse();
@@ -384,7 +381,7 @@ public class Clipboard {
         size = new BlockVector(Math.abs(sizeRotated.getBlockX()),
                           Math.abs(sizeRotated.getBlockY()),
                           Math.abs(sizeRotated.getBlockZ()));
-        Vector tmpOff = transformBlockVector(offset, angle,0,0,0,0).subtract(new org.bukkit.util.BlockVector(shiftX, 0, shiftZ));
+        Vector tmpOff = transformBlockVector(offset.getBlockX(), offset.getBlockY(), offset.getBlockZ(), angle,0,0,0,0).subtract(new org.bukkit.util.BlockVector(shiftX, 0, shiftZ));
 
         offset = new BlockVector(
                 (int) Math.round(tmpOff.getX()),
