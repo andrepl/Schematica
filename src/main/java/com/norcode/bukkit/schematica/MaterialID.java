@@ -18,7 +18,9 @@
  */
 package com.norcode.bukkit.schematica;
 
-import net.minecraft.server.v1_5_R3.*;
+
+
+import net.minecraft.server.v1_6_R1.*;
 
 import java.util.HashMap;
 

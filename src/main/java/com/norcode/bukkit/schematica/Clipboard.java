@@ -19,17 +19,17 @@
 
 package com.norcode.bukkit.schematica;
 
-import net.minecraft.server.v1_5_R3.NBTBase;
-import net.minecraft.server.v1_5_R3.NBTCompressedStreamTools;
-import net.minecraft.server.v1_5_R3.NBTTagCompound;
-import net.minecraft.server.v1_5_R3.NBTTagInt;
-import net.minecraft.server.v1_5_R3.NBTTagList;
-import net.minecraft.server.v1_5_R3.TileEntity;
+import net.minecraft.server.v1_6_R1.NBTBase;
+import net.minecraft.server.v1_6_R1.NBTCompressedStreamTools;
+import net.minecraft.server.v1_6_R1.NBTTagCompound;
+import net.minecraft.server.v1_6_R1.NBTTagInt;
+import net.minecraft.server.v1_6_R1.NBTTagList;
+import net.minecraft.server.v1_6_R1.TileEntity;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_5_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_6_R1.CraftWorld;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
