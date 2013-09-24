@@ -20,7 +20,7 @@ package com.norcode.bukkit.schematica;
 
 
 
-import net.minecraft.server.v1_6_R2.*;
+import net.minecraft.server.v1_6_R3.*;
 
 import java.util.HashMap;
 
@@ -184,6 +184,11 @@ public class MaterialID {
     public static final int QUARTZ_STAIRS = 156;
     public static final int ACTIVATOR_RAIL = 157;
     public static final int DROPPER = 158;
+    public static final int STAINED_CLAY = 159;
+    public static final int HAY_BLOCK = 170;
+    public static final int CARPET = 171;
+    public static final int HARD_CLAY = 172;
+    public static final int COAL_BLOCK = 173;
     public static final int IRON_SPADE = 256;
     public static final int IRON_PICKAXE = 257;
     public static final int IRON_AXE = 258;
@@ -337,6 +342,11 @@ public class MaterialID {
     public static final int QUARTZ = 406;
     public static final int EXPLOSIVE_MINECART = 407;
     public static final int HOPPER_MINECART = 408;
+    public static final int IRON_BARDING = 417;
+    public static final int GOLD_BARDING = 418;
+    public static final int DIAMOND_BARDING = 419;
+    public static final int LEASH = 420;
+    public static final int NAMETAG = 421;
     public static final int GOLD_RECORD = 2256;
     public static final int GREEN_RECORD = 2257;
     public static final int RECORD_3 = 2258;
@@ -534,6 +544,10 @@ public class MaterialID {
             case 5: return 3;
             }
             break;
+        case HAY_BLOCK:
+            if (data == 4) return 8;
+            else if (data == 8) return 4;
+            else return 0;
 
         case DISPENSER:
         case DROPPER:
